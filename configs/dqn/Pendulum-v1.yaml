@@ -1,0 +1,33 @@
+env_name: Pendulum-v1
+alg_name: DQN
+
+model_path: models/dqn/Pendulum-v1/QNet.pt
+run_name: runs/dqn/Pendulum-v1
+
+# env from contiune to discrete
+# need set learn params action_dim
+env_to_dis: True
+
+learn_params:
+  hidden_dim: 128
+
+  # action split size
+  action_dim: 11
+
+  # learning rate
+  lr: 2e-3
+  # gamma
+  gamma: 0.98
+  # epsilon policy value
+  epsilon: 0.01
+  #
+  target_update: 10
+
+train_params:
+  num_episodes: 1000
+  test_num_episodes: 100
+
+  buffer_capacity: 10000
+  buffer_minimal_size: 500
+  batch_size: 64
+  test_n_step: 50

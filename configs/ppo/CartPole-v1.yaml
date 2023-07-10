@@ -1,0 +1,23 @@
+env_name: CartPole-v1
+alg_name: PPO
+
+model_path: models/ppo/CartPole-v1/Policy.pt
+run_name: runs/ppo/CartPole-v1
+
+learn_params:
+  actor_lr: 2e-3
+  critic_lr: 1e-2
+  gamma: 0.98
+  lmbda: 0.95
+  epochs: 10
+  eps: 0.2
+
+train_params:
+  num_episodes: 1000
+  test_num_episodes: 100
+
+  
+  # buffer_capacity: 10000
+  # buffer_minimal_size: 500
+  # batch_size: 64
+  test_n_step: 50

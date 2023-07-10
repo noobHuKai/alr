@@ -1,0 +1,22 @@
+env_name: PongDeterministic-v0
+alg_name: DQN
+
+model_path: models/dqn/PongDeterministic-v0/QNet.pt
+run_name: runs/dqn/PongDeterministic-v0
+
+learn_params:
+  hidden_dim: 128
+  
+  lr: 2e-3
+  gamma: 0.98
+  epsilon: 0.01
+  target_update: 10
+
+train_params:
+  num_episodes: 1000
+  test_num_episodes: 100
+  
+  buffer_capacity: 10000
+  buffer_minimal_size: 500
+  batch_size: 64
+  test_n_step: 50
