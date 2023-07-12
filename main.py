@@ -1,5 +1,5 @@
 from arl.env import GymEnv, GymContinuousToDiscreteEnv
-from arl.policy import DQNPolicy, PPOPolicy, BasePolicy
+from arl.policy import DQNPolicy, BasePolicy
 from arl.utils import load_yaml
 import torch
 from os import path, listdir
@@ -30,8 +30,8 @@ class ARLPolicy:
             policy = DQNPolicy(cfg, env)
 
         # ppo 实现连续动作是采样方式的不同
-        elif alg == "ppo":
-            policy = PPOPolicy(cfg, env)
+        # elif alg == "ppo":
+        #     policy = PPOPolicy(cfg, env)
         return policy
 
     def run_all_model(run_model_func):

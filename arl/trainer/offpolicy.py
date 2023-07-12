@@ -1,9 +1,6 @@
-from typing import Optional
-
-from torch.utils.tensorboard import SummaryWriter
-from arl.data import Collector, ReplayBuffer
-from arl.learner import BaseLearner
-from arl.trainer import BaseTrainer
+from ..collector import Collector
+from ..learner import BaseLearner
+from . import BaseTrainer
 
 
 class OffPolicyTrainer(BaseTrainer):
@@ -12,32 +9,53 @@ class OffPolicyTrainer(BaseTrainer):
         collector: Collector,
         train_params: dict,
         learner: BaseLearner,
-        replay_buffer: Optional[ReplayBuffer] = None,
         show_progress: bool = False,
-        logger=None,
+        logger=...,
     ) -> None:
-        super().__init__(
-            collector, train_params, learner, replay_buffer, show_progress, logger
-        )
+        super().__init__(collector, train_params, learner, show_progress, logger)
+        agent = self.learner
+        self.collector.policy_update(agent)
 
-    def train_step(self) -> None:
-        super().train_step()
+    # offpolicy 用 copy
+    # def train_episode(self) -> None:
+    #     self.log_dicts = []
+    #     agent = self.learner
+    #     rewards = self.collector.step_collect(agent)
+
+    #     for reward in rewards:
+    #         # 随机采样的数据，不是一局的数据
+    #         # 浅拷贝，策略训练是，环境的策略也会更新
+    #         self.policy_update()
+
+    #         log_dict = self.learner.get_log(True)
+    #         log_dict["train/reward"] = reward
+    #         self.log_dicts.append(log_dict)
+    def train_episode(self) -> None:
+        self.log_dicts = []
+        total_reward = self.collector.step_collect()
+
         self.policy_update()
 
-    def policy_update(self) -> None:
-        state, action, next_state, reward, done = self.get_step_data()
-        self.replay_buffer.add(state, action, reward, next_state, done)
-        if self.replay_buffer.size() > self.buffer_minimal_size:
-            b_s, b_a, b_r, b_ns, b_d = self.replay_buffer.sample(self.batch_size)
+        agent = self.learner
+        self.collector.policy_update(agent)
 
-            transition_dict = {
-                "states": b_s,
-                "actions": b_a,
-                "next_states": b_ns,
-                "rewards": b_r,
-                "dones": b_d,
-            }
-            self.learner.update(transition_dict)
+        while not self.collector.done:
+            reward = self.collector.step_collect()
+            total_reward += reward
+            self.policy_update()
+
+            agent = self.learner
+            self.collector.policy_update(agent)
+
+        log_dict = self.learner.get_log(True)
+        log_dict["train/reward"] = total_reward
+        self.log_dicts.append(log_dict)
+
+    def policy_update(self) -> None:
+        buffer = self.collector.get_buffer()
+        if buffer.size() > self.buffer_minimal_size:
+            env_data = buffer.sample(self.batch_size)
+            self.learner.update(env_data)
 
 
 def offpolicy_trainer(*args, **kwargs) -> None:

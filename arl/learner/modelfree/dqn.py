@@ -1,4 +1,5 @@
 import torch
+from arl.data import EnvData
 from arl.learner import BaseLearner
 import numpy as np
 from typing import Dict, Any, Union, Optional
@@ -44,26 +45,19 @@ class DQNLearner(BaseLearner):
             action = self.q_net(state).argmax().item()
         return action
 
-    def update(self, transition_dict: Dict[str, Any]) -> None:
-        self.states = torch.tensor(transition_dict["states"], dtype=torch.float).to(
+    def update(self, data: EnvData) -> None:
+        states, actions, rewards, next_states, dones = data
+        self.states = torch.tensor(np.array(states), dtype=torch.float).to(self.device)
+        self.actions = torch.tensor(actions).view(-1, 1).to(self.device)
+        self.rewards = (
+            torch.tensor(np.array(rewards), dtype=torch.float)
+            .view(-1, 1)
+            .to(self.device)
+        )
+        self.next_states = torch.tensor(np.array(next_states), dtype=torch.float).to(
             self.device
         )
-        self.actions = (
-            torch.tensor(transition_dict["actions"]).view(-1, 1).to(self.device)
-        )
-        self.rewards = (
-            torch.tensor(np.array(transition_dict["rewards"]), dtype=torch.float)
-            .view(-1, 1)
-            .to(self.device)
-        )
-        self.next_states = torch.tensor(
-            transition_dict["next_states"], dtype=torch.float
-        ).to(self.device)
-        self.dones = (
-            torch.tensor(transition_dict["dones"], dtype=torch.float)
-            .view(-1, 1)
-            .to(self.device)
-        )
+        self.dones = torch.tensor(dones, dtype=torch.float).view(-1, 1).to(self.device)
 
         self.learn()
 

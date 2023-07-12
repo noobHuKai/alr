@@ -1,6 +1,8 @@
 import torch
-from arl.trainer import offpolicy_trainer, policy_tester
-from arl.data import Collector, ReplayBuffer
+from arl.trainer import offpolicy_trainer
+from ...collector import Collector
+from ...data import RandomSampleReplayBuffer
+
 from arl.env import BaseEnv
 from arl.learner import DQNLearner
 import torch.nn.functional as F
@@ -87,8 +89,9 @@ class DQNPolicy(BasePolicy):
             self.q_net = QNet(self.state_dim[0], self.hidden_dim, self.action_dim)
 
     def run(self) -> None:
-        collector = Collector(env=self.env)
-        replay_buffer = ReplayBuffer(capacity=self.buffer_capacity)
+        env_data_buffer = RandomSampleReplayBuffer(capacity=self.buffer_capacity)
+
+        collector = Collector(env=self.env, buffer=env_data_buffer)
 
         optimizer = torch.optim.Adam(self.q_net.parameters(), lr=float(self.lr))
 
@@ -105,7 +108,6 @@ class DQNPolicy(BasePolicy):
             collector=collector,
             learner=self.learner,
             train_params=self.train_params,
-            replay_buffer=replay_buffer,
             show_progress=True,
             logger=logger,
         )

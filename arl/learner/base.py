@@ -1,5 +1,6 @@
 from typing import Dict, Any, Union
 from logging import info
+from ..data import EnvData
 
 
 class BaseLearner:
@@ -24,7 +25,7 @@ class BaseLearner:
     def get_log(self, is_train: bool):
         pass
 
-    def update(self, transition_dict: Dict[str, Any]) -> None:
+    def update(self, data: EnvData) -> None:
         pass
 
     def learn(self) -> None:
