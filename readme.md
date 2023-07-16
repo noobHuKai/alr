@@ -2,7 +2,7 @@
 
 ## 原理图
 
-![Alt text](imgs/sdk%E5%8E%9F%E7%90%86%E5%9B%BE.png)
+![Alt text](asserts/sdk%E5%8E%9F%E7%90%86%E5%9B%BE.png)
 
 ## Todo
 
