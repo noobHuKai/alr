@@ -86,7 +86,7 @@ class DQNPolicy(BasePolicy):
                 self.action_dim, in_channels=self.state_dim[2]
             )
         else:
-            self.q_net = QNet(self.state_dim[0], self.hidden_dim, self.action_dim)
+            self.q_net = QNet(self.state_dim[0], self.hidden_dim, self.action_dim[0])
 
     def run(self) -> None:
         env_data_buffer = RandomSampleReplayBuffer(capacity=self.buffer_capacity)
@@ -100,6 +100,7 @@ class DQNPolicy(BasePolicy):
             q_net=self.q_net,
             optimizer=optimizer,
             learn_params=self.learn_params,
+            buffer=env_data_buffer,
         )
 
         logger = SummaryWriter(self.run_name)
@@ -112,26 +113,26 @@ class DQNPolicy(BasePolicy):
             logger=logger,
         )
 
-    def run_test(self) -> None:
-        if self.model_path is None:
-            raise Exception("model path is empty")
+    # def run_test(self) -> None:
+    #     if self.model_path is None:
+    #         raise Exception("model path is empty")
 
-        collector = Collector(env=self.env)
+    #     collector = Collector(env=self.env)
 
-        self.learner = DQNLearner(
-            device=self.device,
-            q_net=self.q_net,
-            learn_params=self.learn_params,
-        )
+    #     self.learner = DQNLearner(
+    #         device=self.device,
+    #         q_net=self.q_net,
+    #         learn_params=self.learn_params,
+    #     )
 
-        self.learner.load_model(self.model_path)
+    #     self.learner.load_model(self.model_path)
 
-        logger = SummaryWriter(self.run_name)
+    #     logger = SummaryWriter(self.run_name)
 
-        policy_tester(
-            collector=collector,
-            learner=self.learner,
-            train_params=self.train_params,
-            show_progress=True,
-            logger=logger,
-        )
+    #     policy_tester(
+    #         collector=collector,
+    #         learner=self.learner,
+    #         train_params=self.train_params,
+    #         show_progress=True,
+    #         logger=logger,
+    #     )

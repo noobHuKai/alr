@@ -17,49 +17,26 @@ from ..env import BaseEnv
 # 有滞后性
 class Collector:
     def __init__(
-        self, env: BaseEnv, buffer: ReplayBuffer, transform_state_fn=None
+        self, env: BaseEnv, buffer: ReplayBuffer,
     ) -> None:
         # env
         self.env = env
         # env data buffer
         self.buffer = buffer
-        # 转换状态的函数
-        self.transform_state_fn = transform_state_fn
 
         self.done = True
 
-    # 转换状态
-    def transform_state(self, state: np.ndarray) -> np.ndarray:
-        if self.transform_state_fn is None:
-            return state
-        else:
-            return self.transform_state_fn(state)
+    # 状态转换
+    def state_transform(self, state: np.ndarray) -> np.ndarray:
+        return state
 
+    # 动作转换
+    def action_transform(self, action: np.ndarray)->np.ndarray:
+        return action
+    
     def policy_update(self, agent: BaseLearner) -> None:
         self.agent = agent
 
-    # 按步收集数据
-    # def step_collect(
-    #     self
-
-    # ) -> List[Union[float, int]]:
-    #     state, _ = self.env.reset()
-    #     state = self.transform_state(state)
-
-    #     rewards = []
-    #     done = False
-    #     while not done:
-    #         action = self.agent.take_action(False, state)
-    #         next_state, reward, done, _ = self.env.step(action)
-    #         next_state = self.transform_state(next_state)
-
-    #         env_data = (state, action, reward, next_state, done)
-    #         self.buffer.add(env_data)
-
-    #         state = next_state
-    #         rewards.append(reward)
-
-    #     return rewards
 
     def step_is_done(self):
         return self.done
@@ -69,7 +46,7 @@ class Collector:
         if self.done:
             self.state, _ = self.env.reset()
 
-        action = self.agent.take_action(False, self.state)
+        action = self.agent.take_action(True, self.state)
         next_state, reward, self.done, _ = self.env.step(action)
 
         env_data = (self.state, action, reward, next_state, self.done)
@@ -94,7 +71,7 @@ class Collector:
             action = agent.take_action(state)
 
             next_state, reward, done, _ = self.env.step(action)
-            next_state = self.transform_state(next_state)
+            next_state = self.state_transform(next_state)
 
             states.append(state)
             actions.append(action)

@@ -1,4 +1,4 @@
 from arl.env.base import BaseEnv, EnvSpaceType
-from arl.env.gym_env import GymEnv, GymContinuousToDiscreteEnv
+from arl.env.gym_env import GymEnv
 
-__all__ = ["BaseEnv", "GymEnv", "EnvSpaceType", "GymContinuousToDiscreteEnv"]
+__all__ = ["BaseEnv", "GymEnv", "EnvSpaceType"]

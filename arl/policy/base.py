@@ -22,9 +22,6 @@ class BasePolicy:
         self.env = env
         self.state_dim, self.action_dim = env.get_shape()
         self.state_type, self.action_type = env.get_shape_type()
-
-        self.learn_params["state_dim"] = self.state_dim
-        self.learn_params["action_dim"] = self.action_dim
         self.learn_params["state_type"] = self.state_type
         self.learn_params["action_type"] = self.action_type
 

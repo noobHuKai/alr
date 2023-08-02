@@ -1,4 +1,4 @@
-from arl.env import GymEnv, GymContinuousToDiscreteEnv
+from arl.env import GymEnv
 from arl.policy import DQNPolicy, BasePolicy
 from arl.utils import load_yaml
 import torch
@@ -21,7 +21,7 @@ class ARLPolicy:
         env_to_dis = cfg.get("env_to_dis", False)
         if env_to_dis:
             action_dim = cfg.get("action_dim").get("action_dim")
-            env = GymContinuousToDiscreteEnv(env_name=env_name, action_dim=action_dim)
+            # env = GymContinuousToDiscreteEnv(env_name=env_name, action_dim=action_dim)
         else:
             env = GymEnv(env_name=env_name)
 

@@ -1,5 +1,5 @@
 import torch
-from arl.data import EnvData
+from arl.data import EnvData, ReplayBuffer
 from arl.learner import BaseLearner
 import numpy as np
 from typing import Dict, Any, Union, Optional
@@ -8,15 +8,17 @@ import torch.nn.functional as F
 
 
 class DQNLearner(BaseLearner):
+
     def __init__(
         self,
         learn_params: dict,
+         buffer: ReplayBuffer,
         device: Union[str, int],
         q_net: torch.nn.Module,
         optimizer: Optional[torch.optim.Optimizer] = None,
         learn_name="DQN",
     ) -> None:
-        super().__init__(learn_name, learn_params, device)
+        super().__init__(learn_name, learn_params,buffer, device)
         # Q网络
         self.q_net = q_net.to(device)
         # 目标网络
@@ -32,21 +34,24 @@ class DQNLearner(BaseLearner):
         self.target_update = self.learn_params.get("target_update")
         # 计数器,记录更新次数
         self.count = 0
+        # 采样的数据
+        self.batch_size =  64
 
         # log
         self.dqn_loss = None
         self.max_q_value = None
 
     def take_action(self, is_train: bool, state):
-        if is_train and np.random.random() < self.epsilon:
+        if not is_train and np.random.random() < self.epsilon:
             action = np.random.randint(self.action_dim)
         else:
             state = torch.tensor(np.array([state]), dtype=torch.float).to(self.device)
             action = self.q_net(state).argmax().item()
         return action
 
-    def update(self, data: EnvData) -> None:
-        states, actions, rewards, next_states, dones = data
+    def update(self) -> None:
+        states, actions, rewards, next_states, dones =  self.buffer.sample(self.batch_size)
+     
         self.states = torch.tensor(np.array(states), dtype=torch.float).to(self.device)
         self.actions = torch.tensor(actions).view(-1, 1).to(self.device)
         self.rewards = (

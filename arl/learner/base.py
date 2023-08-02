@@ -1,11 +1,10 @@
 from typing import Dict, Any, Union
 from logging import info
-from ..data import EnvData
-
+from ..data import EnvData,ReplayBuffer
 
 class BaseLearner:
     def __init__(
-        self, learn_name: str, learn_params: dict, device: Union[str, int] = "cpu"
+        self, learn_name: str, learn_params: dict,buffer:ReplayBuffer, device: Union[str, int] = "cpu"
     ) -> None:
         self.learn_name = learn_name
         self.learn_params = learn_params
@@ -18,6 +17,8 @@ class BaseLearner:
         # self.action_type = learn_params["action_type"]
 
         info("learn params : {}".format(learn_params))
+        
+        self.buffer = buffer
 
     def take_action(self, is_train: bool, state):
         pass
@@ -25,7 +26,7 @@ class BaseLearner:
     def get_log(self, is_train: bool):
         pass
 
-    def update(self, data: EnvData) -> None:
+    def update(self) -> None:
         pass
 
     def learn(self) -> None:
